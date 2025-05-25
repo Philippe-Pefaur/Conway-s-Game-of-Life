@@ -1,0 +1,19 @@
+# Build directory
+build/
+
+# IDE files
+.idea/
+.vscode/
+cmake-build-debug/
+*.suo
+*.user
+
+# Compilation files
+*.o
+*.d
+*.exe
+*.out
+
+# Windows
+.DS_Store
+.directory
