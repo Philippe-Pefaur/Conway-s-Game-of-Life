@@ -7,7 +7,9 @@
 #include "CellStorage.h"
 
 // Initialize a CellStorage
-CellStorage::CellStorage() = default;
+CellStorage::CellStorage() {
+    last_render_size = 0;
+};
 
 // Add a Cell for general processing purposes
 void CellStorage::add_cell(Cell &cell) {
@@ -34,6 +36,15 @@ void CellStorage::clear_tb_killed() {
     tb_killed.clear();
 }
 
+void CellStorage::add_render(Cell &cell) {
+    tb_rendered.emplace_back(cell);
+}
+
+void CellStorage::clear_tb_rendered() {
+    std::erase_if(tb_rendered,
+                  [](const std::reference_wrapper<Cell> &cell){return !cell.get().is_tb_rendered(); });
+}
+
 std::vector<std::reference_wrapper<Cell>> & CellStorage::get_cells() {
     return cells;
 }
@@ -42,4 +53,8 @@ std::vector<std::reference_wrapper<Cell>> & CellStorage::get_tb_revived() {
 }
 std::vector<std::reference_wrapper<Cell>> & CellStorage::get_tb_killed() {
     return tb_killed;
+}
+
+std::vector<std::reference_wrapper<Cell>> & CellStorage::get_tb_rendered() {
+    return tb_rendered;
 }

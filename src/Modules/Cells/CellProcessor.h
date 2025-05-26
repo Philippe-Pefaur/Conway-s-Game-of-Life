@@ -1,5 +1,7 @@
 #ifndef CELLPROCESSOR_H
 #define CELLPROCESSOR_H
+#include <SFML/Graphics/RenderWindow.hpp>
+
 #include "CellMap.h"
 #include "Cell.h"
 #include "CellStorage.h"

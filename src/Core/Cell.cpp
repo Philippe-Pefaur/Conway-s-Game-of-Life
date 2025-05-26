@@ -6,13 +6,22 @@
  */
 #include "Cell.h"
 
+#include <SFML/Graphics/Texture.hpp>
+
+sf::Texture Cell::live_texture;
+sf::Texture Cell::dead_texture;
+sf::Texture Cell::over_texture;
+
 // Initialize a dead cell with position i, j
 Cell::Cell(const int i, const int j) {
     this->i = i;
     this->j = j;
+
     this->live = false; // indicates that the cell is dead
     this->stored = false; // indicates that the cell is not stored
+    this->tb_rendered = false;
 
+    this->sprite.setPosition(j*10, i*10);
 }
 
 // Override << for terminal printing purposes
@@ -36,6 +45,11 @@ int Cell::get_i() const {
 int Cell::get_j() const {
     return j;
 }
+
+sf::Sprite &Cell::get_sprite() {
+    return sprite;
+}
+
 bool Cell::is_live() const {
     return live;
 }
@@ -44,10 +58,30 @@ bool Cell::is_stored() const {
     return stored;
 }
 
+bool Cell::is_tb_rendered() const {
+    return tb_rendered;
+}
+
 void Cell::set_stored(const bool stored) {
     this->stored = stored;
 }
 
 void Cell::set_live(const bool live) {
     this->live = live;
+    if (live) {
+        sprite.setTexture(live_texture);
+        this->tb_rendered = true;
+    }
+    else {
+        sprite.setTexture(dead_texture);
+        this->tb_rendered = false;
+    }
+}
+
+bool Cell::load_textures() {
+    const bool check_live = Cell::live_texture.loadFromFile("assets/cell_sprites/live_cell.png");
+    const bool check_dead = Cell::dead_texture.loadFromFile("assets/cell_sprites/dead_cell.png");
+    const bool check_over = Cell::over_texture.loadFromFile("assets/cell_sprites/over_cell.png");
+
+    return check_live && check_dead && check_over;
 }

@@ -15,6 +15,8 @@ private:
     std::vector<std::reference_wrapper<Cell>> cells; // main storage Vector, contains Cells for general processing
     std::vector<std::reference_wrapper<Cell>> tb_revived; // contains Cells to be revived
     std::vector<std::reference_wrapper<Cell>> tb_killed; // contains Cells to be killed
+    std::vector<std::reference_wrapper<Cell>> tb_rendered;
+    int last_render_size;
 
 public:
     /**
@@ -41,9 +43,14 @@ public:
     void add_kill(Cell &cell);
     void clear_tb_killed();
 
+    void add_render(Cell &cell);
+
+    void clear_tb_rendered();
+
     [[nodiscard]] std::vector<std::reference_wrapper<Cell>> & get_cells();
     [[nodiscard]] std::vector<std::reference_wrapper<Cell>> & get_tb_revived();
     [[nodiscard]] std::vector<std::reference_wrapper<Cell>> & get_tb_killed();
+    [[nodiscard]] std::vector<std::reference_wrapper<Cell>> & get_tb_rendered();
 };
 
 #endif

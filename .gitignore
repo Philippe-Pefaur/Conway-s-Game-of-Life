@@ -17,3 +17,5 @@ cmake-build-debug/
 # Windows
 .DS_Store
 .directory
+
+*.txt

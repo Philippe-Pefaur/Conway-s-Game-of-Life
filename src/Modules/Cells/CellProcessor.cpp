@@ -67,10 +67,10 @@ void CellProcessor::process_subjects() const {
         switch (this->check_state(i_cell.get())) { // check if cells should be revived or killed
             case 0: // cell must be killed
                 storage.add_kill(i_cell); // store on kill vector
-            break;
+                break;
             case 1: // cell must be revived
                 storage.add_revive(i_cell); // store on revive vector
-            break;
+                break;
             default: // cell isn't modified
                 break;
         }
@@ -83,6 +83,7 @@ void CellProcessor::process_subjects() const {
 void CellProcessor::revive_cells() const {
     for (auto i_cell : storage.get_tb_revived()) { // iterates through every Cell in the storer's tb_revived
         i_cell.get().set_live(true); // set the Cell's state to live
+        storage.add_render(i_cell);
         this->store_subjects(i_cell); // store Cells subject to the modification
     }
     storage.clear_tb_revived(); // clear the Vector
@@ -95,4 +96,5 @@ void CellProcessor::kill_cells() const {
         this->store_subjects(i_cell); // store Cells subject to the modification
     }
     storage.clear_tb_killed(); // clear the Vector
+    storage.clear_tb_rendered();
 }

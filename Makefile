@@ -1,13 +1,15 @@
 # Compilador y flags
 CXX = g++
-CXXFLAGS = -O3 -march=native -Wall -Wextra -std=c++20
-LDFLAGS =
+CXXFLAGS = -O3 -march=native -Wall -Wextra -std=c++20 \
+	-I$(SRC_DIR)/Core \
+	-I$(SRC_DIR)/Modules/Cells \
+	-I$(SRC_DIR)/Modules/Render
+LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 
 # Directorios
 BUILD_DIR = build
 SRC_DIR = src
 OBJ_DIR = $(BUILD_DIR)/obj
-BIN_DIR = $(BUILD_DIR)/bin
 
 # Obtener archivos fuente y generar nombres de objetos
 SRCS = $(shell find $(SRC_DIR) -name '*.cpp')
@@ -15,7 +17,7 @@ OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEPS = $(OBJS:.o=.d)
 
 # Nombre del ejecutable
-TARGET = $(BIN_DIR)/cgl
+TARGET = cgl
 
 # Regla principal
 all: directories $(TARGET)
@@ -23,7 +25,6 @@ all: directories $(TARGET)
 # Crear directorios necesarios
 directories:
 	@mkdir -p $(BUILD_DIR)
-	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(OBJ_DIR)
 	@mkdir -p $(dir $(OBJS))
 
@@ -38,6 +39,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 # Limpiar archivos generados
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -rf cgl
 
 .PHONY: all clean directories
 
