@@ -8,6 +8,7 @@
 
 #include <SFML/Graphics/Texture.hpp>
 
+// Variables to store rendering textures
 sf::Texture Cell::live_texture;
 sf::Texture Cell::dead_texture;
 sf::Texture Cell::over_texture;
@@ -19,9 +20,9 @@ Cell::Cell(const int i, const int j) {
 
     this->live = false; // indicates that the cell is dead
     this->stored = false; // indicates that the cell is not stored
-    this->tb_rendered = false;
+    this->tb_rendered = false; // indicates that the cell shouldn't be rendered
 
-    this->sprite.setPosition(j*10, i*10);
+    this->sprite.setPosition(j*10, i*10); // setup sprite for rendering
 }
 
 // Override << for terminal printing purposes
@@ -66,15 +67,33 @@ void Cell::set_stored(const bool stored) {
     this->stored = stored;
 }
 
+void Cell::set_tb_rendered(bool tb_rendered) {
+    this->tb_rendered = tb_rendered;
+}
+
 void Cell::set_live(const bool live) {
     this->live = live;
+    if (live) { // update sprite an render state
+        set_sprite(live_texture);
+        set_tb_rendered(true);
+    }
+    else { // update sprite an render state
+        set_sprite(dead_texture);
+        set_tb_rendered(false);
+    }
+}
+
+void Cell::set_sprite(const sf::Texture &texture) {
+    this->sprite.setTexture(texture);
+}
+
+// Function for updating cell sprites without need to give it
+void Cell::reset_sprite() {
     if (live) {
-        sprite.setTexture(live_texture);
-        this->tb_rendered = true;
+        set_sprite(live_texture);
     }
     else {
-        sprite.setTexture(dead_texture);
-        this->tb_rendered = false;
+        set_sprite(dead_texture);
     }
 }
 
@@ -83,5 +102,5 @@ bool Cell::load_textures() {
     const bool check_dead = Cell::dead_texture.loadFromFile("assets/cell_sprites/dead_cell.png");
     const bool check_over = Cell::over_texture.loadFromFile("assets/cell_sprites/over_cell.png");
 
-    return check_live && check_dead && check_over;
+    return check_live && check_dead && check_over; // returns true if all textures were successfully loaded
 }

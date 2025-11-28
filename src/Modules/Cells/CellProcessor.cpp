@@ -13,9 +13,9 @@ CellProcessor::CellProcessor(CellMap &map, CellStorage &storage): map(map), stor
 std::vector<std::reference_wrapper<Cell>> CellProcessor::get_adjacent(const Cell &cell) const {
     std::vector<std::reference_wrapper<Cell>> adjacent_cells; // instance a vector to store the adjacent
     for (int i = cell.get_i()-1; i <= cell.get_i()+1; i++) { // iterates through the Cell's row, the one on top and below
-        if (i < 0 || i > map.getRows()-1) continue; // skips the iteration if the row index is out of range
+        if (i < 0 || i > map.get_rows()-1) continue; // skips the iteration if the row index is out of range
         for (int j = cell.get_j()-1; j <= cell.get_j()+1; j++) { // iterates through the Cell's column, the one preceding it and the one next
-            if (j < 0 || j > map.getColumns()-1) continue; // skip the iteration if the column index is out of range
+            if (j < 0 || j > map.get_columns()-1) continue; // skip the iteration if the column index is out of range
             if (!(i==cell.get_i() && j==cell.get_j())) { // if the position is not the given Cell's position
                 adjacent_cells.push_back(std::ref(map[i][j])); // add the Cell to the vector
             }
@@ -79,22 +79,44 @@ void CellProcessor::process_subjects() const {
     storage.clear_cells(); // clear all cells stored for processing
 }
 
+void CellProcessor::revive(const std::vector<std::reference_wrapper<Cell>> &sample) const {
+    for (auto i_cell : sample) {
+        i_cell.get().set_live(true);
+        storage.add_render(i_cell);
+        storage.add_live(i_cell);
+        this->store_subjects(i_cell);
+    }
+}
+
 // Revives Cells to be revived
 void CellProcessor::revive_cells() const {
-    for (auto i_cell : storage.get_tb_revived()) { // iterates through every Cell in the storer's tb_revived
-        i_cell.get().set_live(true); // set the Cell's state to live
-        storage.add_render(i_cell);
-        this->store_subjects(i_cell); // store Cells subject to the modification
-    }
+    this->revive(storage.get_tb_revived());
     storage.clear_tb_revived(); // clear the Vector
+}
+
+// Kills a given vector of cells
+void CellProcessor::kill(const std::vector<std::reference_wrapper<Cell>> &sample) const {
+    for (auto i_cell : sample) {
+        i_cell.get().set_live(false);
+        this->store_subjects(i_cell);
+    }
+    storage.clean_tb_rendered();
+    storage.clean_live_cells();
 }
 
 // Kills Cells to be killed
 void CellProcessor::kill_cells() const {
-    for (auto i_cell : storage.get_tb_killed()) { // iterates through every Cell in the storer's tb_killed
-        i_cell.get().set_live(false); // set the Cell's state to dead
-        this->store_subjects(i_cell); // store Cells subject to the modification
-    }
-    storage.clear_tb_killed(); // clear the Vector
-    storage.clear_tb_rendered();
+    this->kill(storage.get_tb_killed());
+    storage.clear_tb_killed();
+}
+
+// Processes a single logic step in the game
+void CellProcessor::logic_step() const {
+    this->process_subjects(); // process and clear all stored cells and add them to the storage's revive or kill vector under certain conditions
+    this->revive_cells(); // revive cells in revive vector and add their subjects to the storage
+    this->kill_cells(); // kill cells in kill vector and add their subjects to the storage
+}
+
+void CellProcessor::clear_map() const {
+    this->kill(storage.get_live_cells());
 }

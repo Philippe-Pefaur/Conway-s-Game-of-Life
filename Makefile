@@ -3,8 +3,8 @@ CXX = g++
 CXXFLAGS = -O3 -march=native -Wall -Wextra -std=c++20 \
 	-I$(SRC_DIR)/Core \
 	-I$(SRC_DIR)/Modules/Cells \
-	-I$(SRC_DIR)/Modules/Render
-LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+	-I$(SRC_DIR)/Modules/Game
+LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system -mwindows
 
 # Directorios
 BUILD_DIR = build

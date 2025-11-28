@@ -69,14 +69,23 @@ public:
      */
     void process_subjects() const;
 
+    void revive(const std::vector<std::reference_wrapper<Cell>> &sample) const;
+
     /**
      * @brief Revives all Cells in the Storage's tb_revived vector
      */
     void revive_cells() const;
+
+    void kill(const std::vector<std::reference_wrapper<Cell>> &sample) const;
+
     /**
      * @brief Kills all Cells in the Storage's tb_revived vector
      */
     void kill_cells() const;
+
+    void logic_step() const;
+
+    void clear_map() const;
 };
 
 #endif

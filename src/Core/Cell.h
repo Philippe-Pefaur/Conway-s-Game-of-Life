@@ -15,15 +15,16 @@ private:
     int j; // column number
     bool live; // cell state (0: Dead, 1:Live)
     bool stored; // indicates the presence of the cell in a CellStorage's cells for processing (0: Not stored, 1: Stored)
-    bool tb_rendered;
+    bool tb_rendered; // indicates if the cell is to be included in the rendering queue
 
-    sf::Sprite sprite;
+    sf::Sprite sprite; // sprite for cell rendering
 
+public:
+
+    // Textures for cell rendering
     static sf::Texture live_texture;
     static sf::Texture dead_texture;
     static sf::Texture over_texture;
-
-public:
 
     /**
      * @brief Builder for Cell
@@ -47,7 +48,11 @@ public:
     [[nodiscard]] bool is_stored() const;
     [[nodiscard]] bool is_tb_rendered() const;
     void set_stored(bool stored);
+    void set_tb_rendered(bool tb_rendered);
     void set_live(bool live);
+
+    void set_sprite(const sf::Texture &texture);
+    void reset_sprite();
 
     static bool load_textures();
 };

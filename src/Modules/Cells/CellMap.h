@@ -36,8 +36,8 @@ public:
     std::vector<Cell> & operator[](int index);
 
     [[nodiscard]] const std::vector<std::vector<Cell>> & getCells() const;
-    [[nodiscard]] int getRows() const;
-    [[nodiscard]] int getColumns() const;
+    [[nodiscard]] int get_rows() const;
+    [[nodiscard]] int get_columns() const;
 };
 
 

@@ -25,8 +25,8 @@ std::vector<Cell> & CellMap::operator[](const int index) {
 
 // Override << for terminal printing purposes
 std::ostream & operator<<(std::ostream & os,CellMap & map) {
-    for (int i = 0; i < map.getRows(); i++) {
-        for (int j = 0; j < map.getColumns(); j++) { // for every space in the map's grid
+    for (int i = 0; i < map.get_rows(); i++) {
+        for (int j = 0; j < map.get_columns(); j++) { // for every space in the map's grid
             if (map[i][j].is_live()) { // print 1 if cell is live
                 os << 1 << " ";
             }
@@ -42,9 +42,11 @@ std::ostream & operator<<(std::ostream & os,CellMap & map) {
 const std::vector<std::vector<Cell>> & CellMap::getCells() const {
     return cells;
 }
-int CellMap::getRows() const {
+
+int CellMap::get_rows() const {
     return rows;
 }
-int CellMap::getColumns() const {
+
+int CellMap::get_columns() const {
     return columns;
 }

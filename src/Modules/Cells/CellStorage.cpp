@@ -36,13 +36,48 @@ void CellStorage::clear_tb_killed() {
     tb_killed.clear();
 }
 
+// Add a Cell for rendering purposes
 void CellStorage::add_render(Cell &cell) {
     tb_rendered.emplace_back(cell);
 }
 
-void CellStorage::clear_tb_rendered() {
+// Erase cells that are no longer queued for rendering
+void CellStorage::clean_tb_rendered() {
     std::erase_if(tb_rendered,
                   [](const std::reference_wrapper<Cell> &cell){return !cell.get().is_tb_rendered(); });
+}
+
+// Add Cell for tracking purposes
+void CellStorage::add_live(Cell &cell) {
+    live_cells.emplace_back(cell);
+}
+
+// Checks live_cells for dead cells and removes them
+void CellStorage::clean_live_cells() {
+    std::erase_if(live_cells,
+                  [](const std::reference_wrapper<Cell> &cell){return !cell.get().is_live(); });
+}
+
+void CellStorage::clear_live_cells() {
+    live_cells.clear();
+}
+
+// Add Cell for drawing purposes
+void CellStorage::add_selection(Cell &cell) {
+    selection.emplace_back(cell);
+}
+
+void CellStorage::clear_selection() {
+    selection.clear();
+}
+
+// Add cell for rendering purposes
+void CellStorage::add_last_selection(Cell &cell) {
+    last_selection.emplace_back(cell);
+}
+
+void CellStorage::clear_last_selection() {
+    last_selection.clear();
 }
 
 std::vector<std::reference_wrapper<Cell>> & CellStorage::get_cells() {
@@ -57,4 +92,16 @@ std::vector<std::reference_wrapper<Cell>> & CellStorage::get_tb_killed() {
 
 std::vector<std::reference_wrapper<Cell>> & CellStorage::get_tb_rendered() {
     return tb_rendered;
+}
+
+std::vector<std::reference_wrapper<Cell>> & CellStorage::get_live_cells() {
+    return live_cells;
+}
+
+std::vector<std::reference_wrapper<Cell>> & CellStorage::get_selection() {
+    return selection;
+}
+
+std::vector<std::reference_wrapper<Cell> > &CellStorage::get_last_selection() {
+    return last_selection;
 }

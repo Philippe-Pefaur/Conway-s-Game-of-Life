@@ -1,5 +1,5 @@
-# cgl ver 0.0
-&emsp;Conway's Game of Life implementation in C++ meant to actually be palyed
+# cgl ver 0.1
+&emsp;Conway's Game of Life implementation in C++ meant to actually be played
 
 ***
 
@@ -7,26 +7,27 @@
 - C++ 20 or later.
 - g++ 8 or later.
 - GNU Make 3.81 or later.
-- UNIX compatible terminal/environment (eg. Git Bash, Msys2)
+- UNIX compatible terminal/environment (eg: Git Bash, Msys2)
 
 ## Compile and run:
 &emsp;To compile and run the file first make sure to use g++ 
 version 8 or later and GNU Make version 3.81 or later
 and execute the following lines in bash:
 1. `make`
-2. `./build/bin/cgl`
+2. `./cgl`
 
 ***
 
 ## Description
-&emsp;This is an extremely basic version of the game
-composed by the bare minimum of its functional pieces.
-Therefore, the game runs directly on the terminal and is
-extremely slow at printing, thus the grid's dimensions are
-manually set to 10x20 Cells. Also, the program doesn't
-allow for user input to draw Cells, the starting Cells
-must be manually set to live in the source file src/cgl.cpp,
-where the template for a small spaceship is witten by default.
+&emsp;This version implements graphical rendering to the program
+creating a new window to display the cell map and its changes.
+The window also allows for processing of window events, so now
+the map can be manipulated using a graphical interface at any point
+while running.
+
+&emsp; Implemented cell drawing mechanic, allow the user to revive
+and kill cells in the map by using the cursor, also added special
+pattern styles for drawing lines and circles in the map.
 
 ## Repository State (ARCHIVED)
 &emsp;This project was made purely for study purposes and is 
