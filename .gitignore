@@ -1,21 +1,23 @@
-# Build directory
-build/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# IDE files
-.idea/
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
 .vscode/
-cmake-build-debug/
-*.suo
-*.user
-
-# Compilation files
-*.o
-*.d
-*.exe
-*.out
-
-# Windows
+.idea
 .DS_Store
-.directory
-
-*.txt
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
