@@ -14,7 +14,11 @@
       {
         "title": "cgl",
         "width": 1280,
-        "height": 720
+        "height": 720,
+        "transparent": true,
+        "decorations": false,
+        "center": true,
+        "resizable": false
       }
     ],
     "security": {
