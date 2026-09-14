@@ -1,12 +1,14 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub mod app;
-pub mod renderer;
+pub mod core;
+pub mod shader;
 
 pub use app::run;
 
 #[tauri::command]
-fn set_clear_color(timestamp: i64) { // Function for handling clicks from the frontend
+fn set_clear_color(timestamp: i64) {
+    // Function for handling clicks from the frontend
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .expect("time went backwards")

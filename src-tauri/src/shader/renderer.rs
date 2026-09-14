@@ -1,13 +1,13 @@
 use std::sync::Mutex;
 
-use tauri::{WebviewWindow};
+use tauri::WebviewWindow;
 
 pub struct RenderState {
     pub surface: wgpu::Surface<'static>,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub config: wgpu::SurfaceConfiguration,
-   
+
     pub full_screen_buffer: wgpu::Buffer,
     pub grid_data_buffer: wgpu::Buffer,
     pub full_screen_bind_group: wgpu::BindGroup,
@@ -70,10 +70,18 @@ impl StateGrid {
         bytemuck::cast_slice(&self.cells)
     }
 
-    pub fn width(&self) -> u32 { self.width }
-    pub fn height(&self) -> u32 { self.height }
-    pub fn cell_size(&self) -> u32 { self.cell_size }
-    pub fn window_scale(&self) -> f32 { self.window_scale }
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+    pub fn height(&self) -> u32 {
+        self.height
+    }
+    pub fn cell_size(&self) -> u32 {
+        self.cell_size
+    }
+    pub fn window_scale(&self) -> f32 {
+        self.window_scale
+    }
 }
 
 // Entire screen is passed to the fragment shader deciding pixel color according to cell state grid
@@ -127,15 +135,18 @@ const FULL_SCREEN_SHADER_CODE: &str = r#"
     }
 "#;
 
-pub async fn init_render_state<R: tauri::Runtime>(window: &WebviewWindow<R>, grid_size: u32) -> RenderState {
+pub async fn init_render_state<R: tauri::Runtime>(
+    window: &WebviewWindow<R>,
+    grid_size: u32,
+) -> RenderState {
     let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
         backends: wgpu::Backends::PRIMARY,
         ..Default::default()
     });
 
     let surface = unsafe {
-        let target = wgpu::SurfaceTargetUnsafe::from_window(window)
-            .expect("failed to get window handle");
+        let target =
+            wgpu::SurfaceTargetUnsafe::from_window(window).expect("failed to get window handle");
         instance
             .create_surface_unsafe(target)
             .expect("failed to create surface")
@@ -190,39 +201,46 @@ pub async fn init_render_state<R: tauri::Runtime>(window: &WebviewWindow<R>, gri
         source: wgpu::ShaderSource::Wgsl(FULL_SCREEN_SHADER_CODE.into()),
     });
 
-    let full_screen_bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-        label: Some("Full Screen Bind Group Layout"),
-        entries: &[
-            // grid dimensions
-            wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::FRAGMENT,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: Some(std::num::NonZeroU64::new(std::mem::size_of::<FullScreenGridData>() as u64).unwrap()),
+    let full_screen_bind_group_layout =
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("Full Screen Bind Group Layout"),
+            entries: &[
+                // grid dimensions
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: Some(
+                            std::num::NonZeroU64::new(
+                                std::mem::size_of::<FullScreenGridData>() as u64
+                            )
+                            .unwrap(),
+                        ),
+                    },
+                    count: None,
                 },
-                count: None,
-            },
-            // cell state array
-            wgpu::BindGroupLayoutEntry {
-                binding: 1,
-                visibility: wgpu::ShaderStages::FRAGMENT,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Storage { read_only: true },
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
+                // cell state array
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Storage { read_only: true },
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
                 },
-                count: None,
-            },
-        ],
-    });
+            ],
+        });
 
-    let full_screen_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: Some("Full Screen Pipeline Layout"),
-        bind_group_layouts: &[&full_screen_bind_group_layout],
-        push_constant_ranges: &[],
-    });
+    let full_screen_pipeline_layout =
+        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("Full Screen Pipeline Layout"),
+            bind_group_layouts: &[&full_screen_bind_group_layout],
+            push_constant_ranges: &[],
+        });
 
     let full_screen_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Full Screen Render Pipeline"),
@@ -255,7 +273,7 @@ pub async fn init_render_state<R: tauri::Runtime>(window: &WebviewWindow<R>, gri
 
     let grid_data_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("Grid Data Buffer"),
-        size: std::mem::size_of::<[u32; 4]>() as wgpu::BufferAddress,
+        size: std::mem::size_of::<FullScreenGridData>() as wgpu::BufferAddress,
         usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
     });
@@ -330,25 +348,24 @@ pub fn clear_screen(state: &Mutex<RenderState>, clear_color: wgpu::Color) {
         });
 
     {
-    let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-        label: Some("Clear Render Pass"),
-        color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-            view: &view,
-            resolve_target: None,
-            ops: wgpu::Operations {
-                load: wgpu::LoadOp::Clear(clear_color),
-                store: wgpu::StoreOp::Store,
-            },
-        })],
-        depth_stencil_attachment: None,
-        occlusion_query_set: None,
-        timestamp_writes: None,
-    });
+        let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Clear Render Pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(clear_color),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            depth_stencil_attachment: None,
+            occlusion_query_set: None,
+            timestamp_writes: None,
+        });
     }
 
     state.queue.submit(std::iter::once(encoder.finish()));
     output.present();
-
 }
 
 pub fn render_screen(state: &Mutex<RenderState>, grid: &StateGrid) {
@@ -366,18 +383,14 @@ pub fn render_screen(state: &Mutex<RenderState>, grid: &StateGrid) {
         window_scale: grid.window_scale(),
     };
 
-    state.queue.write_buffer(
-        &state.grid_data_buffer,
-        0,
-        bytemuck::bytes_of(&grid_data),
-    );
+    state
+        .queue
+        .write_buffer(&state.grid_data_buffer, 0, bytemuck::bytes_of(&grid_data));
 
     // upload cell state vector
-    state.queue.write_buffer(
-        &state.full_screen_buffer,
-        0,
-        grid.as_bytes(),
-    );
+    state
+        .queue
+        .write_buffer(&state.full_screen_buffer, 0, grid.as_bytes());
 
     let view = output
         .texture
