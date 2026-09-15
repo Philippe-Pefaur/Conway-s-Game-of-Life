@@ -11,8 +11,12 @@ impl Cell {
         Self { state }
     }
 
-    pub fn set_state(&mut self, state: CellState) {
-        self.state = state;
+    pub fn set_state(&mut self, state: CellState) -> bool {
+        let changed = self.state != state;
+        if changed {
+            self.state = state;
+        }
+        changed
     }
 
     pub fn is_live(&self) -> bool {

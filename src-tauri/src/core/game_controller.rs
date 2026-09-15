@@ -5,9 +5,9 @@ use crate::core::cells::{CellMap, CellState, MapError};
 
 /// Controls cgl game logic.
 pub struct GameController {
-    pub active_pos: HashSet<(i32, i32)>, // positions which were affected by the last simulation step.
-    pub to_be_killed: HashSet<(i32, i32)>, // positions queued for killing.
-    pub to_be_revived: HashSet<(i32, i32)>, // position queued for revivign.
+    active_pos: HashSet<(i32, i32)>, // positions which were affected by the last simulation step.
+    to_be_killed: HashSet<(i32, i32)>, // positions queued for killing.
+    to_be_revived: HashSet<(i32, i32)>, // position queued for revivign.
     pub cell_map: CellMap,
 }
 
@@ -42,6 +42,7 @@ impl GameController {
 
     /// Advances simulation by one step.
     pub fn step(&mut self) {
+        println!("Instanced chunks: {}\n", self.cell_map.chunk_count());
         self.queue_cells(); // determine state changes
         self.active_pos.clear();
 

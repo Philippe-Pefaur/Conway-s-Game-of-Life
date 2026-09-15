@@ -13,6 +13,7 @@ use super::{Cell, CellState};
 #[derive(Debug, Clone)]
 pub struct CellChunk {
     size: usize,
+    live_count: u32,
     cells: Vec<Cell>,
 }
 
@@ -31,6 +32,7 @@ impl CellChunk {
     pub fn new(size: usize) -> Self {
         Self {
             size,
+            live_count: 0,
             cells: vec![Cell::default(); size * size],
         }
     }
@@ -73,8 +75,19 @@ impl CellChunk {
     /// `x`, `y` position coordinates follow a Cartisian style plane.
     pub fn set_state(&mut self, x: usize, y: usize, state: CellState) -> Result<(), ChunkError> {
         let index = self.index_of(x, y)?; // propagates error if position is out of bounds
-        self.cells[index].set_state(state);
+        if self.cells[index].set_state(state) {
+            if state == CellState::Alive {
+                self.live_count += 1;
+            } else {
+                self.live_count -= 1;
+            }
+        }
         Ok(())
+    }
+
+    /// True if *__CellChunk__* has no live cells
+    pub fn is_empty(&self) -> bool {
+        self.live_count == 0
     }
 }
 

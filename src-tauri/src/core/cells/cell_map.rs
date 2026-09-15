@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt;
 
 use crate::core::cells::{Cell, CellChunk, CellState, ChunkError};
@@ -123,18 +123,25 @@ impl CellMap {
     /// `x`, `y` position coordinates follow a Cartisian style plane.
     pub fn set_cell(&mut self, x: i32, y: i32, state: CellState) -> Result<(), MapError> {
         let size = self.chunk_size as i32;
-        let chunk = self.chunk_at(x, y);
-
         let x_pos = x.rem_euclid(size) as usize;
         let y_pos = y.rem_euclid(size) as usize;
 
-        chunk
-            .set_state(x_pos, y_pos, state)
-            .map_err(|error| MapError::OperationFailed {
-                x,
-                y,
-                source: error,
-            })?;
+        let is_empty = {
+            let chunk = self.chunk_at(x, y);
+            chunk
+                .set_state(x_pos, y_pos, state)
+                .map_err(|error| MapError::OperationFailed {
+                    x,
+                    y,
+                    source: error,
+                })?;
+            chunk.is_empty()
+        };
+
+        let (chunk_x, chunk_y) = self.chunk_coords(x, y);
+        if is_empty {
+            self.cleanup_chunks(chunk_x, chunk_y);
+        }
 
         Ok(())
     }
@@ -189,17 +196,6 @@ impl CellMap {
         neighbours
     }
 
-    /// Removes the *__CellChunk__* at `chunk_x`, `chunk_y` global chunk position from the `cells` *__HashMap__*.
-    ///
-    /// The *__CellChunk__* is destroyed when dropped.
-    ///
-    /// ### Note:
-    ///
-    /// `chunk_x`, `chunk_y` global chunk coordinates follow a Cartisian style plane.
-    pub fn drop_chunk(&mut self, chunk_x: i32, chunk_y: i32) -> bool {
-        self.cells.remove(&(chunk_x, chunk_y)).is_some()
-    }
-
     /// Transforms a given `x`, `y` global position into `chunk_x`, `chunk_y` global chunk coordinates
     ///
     /// ### Note:
@@ -209,6 +205,56 @@ impl CellMap {
         let size = self.chunk_size as i32;
 
         (Self::div_floor(x, size), Self::div_floor(y, size)) // rounds down to the preceding integer value while preserving sign
+    }
+
+    pub fn chunk_count(&self) -> usize {
+        self.cells.iter().count()
+    }
+
+    /// Removes the *__CellChunk__* containing `chunk_x`, `chunk_y` at global chunk position from the `cells` *__HashMap__*.
+    ///
+    /// The *__CellChunk__* is destroyed when dropped.
+    ///
+    /// ### Note:
+    ///
+    /// `chunk_x`, `chunk_y` global chunk coordinates follow a Cartisian style plane.
+    fn drop_chunk(&mut self, chunk_x: i32, chunk_y: i32) -> bool {
+        self.cells.remove(&(chunk_x, chunk_y)).is_some()
+    }
+
+    fn cleanup_chunks(&mut self, start_x: i32, start_y: i32) {
+        let mut queue = VecDeque::new();
+        let mut visited = HashSet::new();
+
+        queue.push_back((start_x, start_y));
+        visited.insert((start_x, start_y));
+
+        while let Some((chunk_x, chunk_y)) = queue.pop_front() {
+            let chunk = match self.cells.get(&(chunk_x, chunk_y)) {
+                Some(chunk) => chunk,
+                None => continue,
+            };
+
+            if !chunk.is_empty() {
+                continue;
+            }
+
+            let has_live_neighbour = self
+                .neighbour_pos(chunk_x, chunk_y)
+                .iter()
+                .filter_map(|pos| self.cells.get(pos))
+                .any(|neighbour| !neighbour.is_empty());
+
+            if !has_live_neighbour {
+                self.drop_chunk(chunk_x, chunk_y);
+            }
+
+            for (new_x, new_y) in self.neighbour_pos(chunk_x, chunk_y) {
+                if visited.insert((new_x, new_y)) {
+                    queue.push_back((new_x, new_y));
+                }
+            }
+        }
     }
 
     /// Transforms a given `x`, `y` global position into local chunk coordinates

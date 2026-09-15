@@ -46,6 +46,10 @@ fn setup_renderer<R: tauri::Runtime>(
     game_controller.draw(0, 0, CellState::Alive);
     game_controller.draw(0, 1, CellState::Alive);
 
+    game_controller.draw(-32, -32, CellState::Alive);
+    game_controller.draw(-36, -36, CellState::Alive);
+    game_controller.draw(-32, 32, CellState::Alive);
+
     thread::spawn(move || {
         loop {
             // Testing print into terminal
@@ -53,14 +57,14 @@ fn setup_renderer<R: tauri::Runtime>(
                 match game_controller.cell_map.get_cell(x, y) {
                     Ok(cell) if cell.is_live() => 'O',
                     Ok(_) => '.',
-                    Err(error) => '.',
+                    Err(_error) => '.',
                 }
             };
             let map_print = format!(
                 r#"
-                {}, {}, {}
-                {}, {}, {}
-                {}, {}, {}
+                {} {} {}
+                {} {} {}
+                {} {} {}
                 "#,
                 state_char(-1, 1),
                 state_char(0, 1),
@@ -76,7 +80,7 @@ fn setup_renderer<R: tauri::Runtime>(
 
             game_controller.step();
 
-            //thread::sleep(Duration::from_millis(2000)); // delay for changes observation
+            thread::sleep(Duration::from_millis(2000)); // delay for changes observation
         }
     });
 
